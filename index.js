@@ -1,21 +1,25 @@
 const express = require("express");
+const cookieParser = require("cookie-parser"); // handle user cookies
 const app = express();
 const PORT = process.env.PORT || 3000;
 const path = require("path");
 
+
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // enable cookies
 app.use(express.static(path.join(__dirname, 'public')));
 
 let posts = [];
-let currentUser = "";
 
 // homepage
 app.get("/", (req, res) => {
-  if (currentUser === "") {
+  const user = req.cookies.username; // get user from browser
+
+  if (!user) {
     res.redirect("/signup");
   } else {
-    res.render("index", { posts: posts, user: currentUser });
+    res.render("index", { posts: posts, user: user });
   }
 });
 
@@ -26,7 +30,9 @@ app.get("/signup", (req, res) => {
 
 // handle signup
 app.post("/signup", (req, res) => {
-  currentUser = req.body.username;
+  const username = req.body.username;
+
+  res.cookie("username", username); // save user in browser
   res.redirect("/");
 });
 
@@ -39,11 +45,13 @@ app.get("/create", (req, res) => {
 app.post("/post", (req, res) => {
   console.log("POST RECEIVED:", req.body); 
 
-  let newPost = {
-  username: currentUser,
+const user = req.cookies.username;
+
+let newPost = {
+  username: user,
   content: req.body.content,
   time: new Date().toLocaleString()
-  };
+};
 
   posts.push(newPost);
 
