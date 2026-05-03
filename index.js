@@ -50,7 +50,11 @@ const user = req.cookies.username;
 let newPost = {
   username: user,
   content: req.body.content,
-  time: new Date().toLocaleString()
+  time: new Date().toLocaleString("en-US", {
+  timeZone: "America/New_York",
+  dateStyle: "medium",
+  timeStyle: "short"
+})
 };
 
   posts.push(newPost);
