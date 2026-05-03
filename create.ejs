@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create a Post</title>
+
+  <style>
+    /* page styling and layout */
+    body {
+      font-family: Georgia, serif;
+      background-color: #f4f1ed;
+      color: #2f2f2f;
+    }
+
+    .container {
+      width: 500px;
+      margin: auto;
+      margin-top: 50px;
+    }
+
+    /* editable writing box */
+    #editor {
+      width: 100%;
+      height: 150px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-family: Georgia, serif;
+      font-size: 16px;
+      background-color: white;
+
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* placeholder text styling */
+    #editor:empty:before {
+      content: attr(data-placeholder);
+      color: #999;
+    }
+
+    /* crossed-out text appearance */
+    s {
+      color: #444;
+      text-decoration: line-through;
+    }
+
+    /* button styling */
+    .button {
+      padding: 8px 12px;
+      border: 1px solid #333;
+      background: white;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Create a Post</h1>
+
+  <!-- form for submitting post -->
+  <form id="postForm" action="/post" method="POST">
+    
+    <div id="editor" contenteditable="true" data-placeholder="Write something you are willing to share."></div>
+
+    <input type="hidden" name="content" id="hiddenInput">
+
+    <br>
+
+    <button type="submit" class="button">Post</button>
+
+  </form>
+
+</div>
+
+<script>
+  // select main elements
+  const editor = document.getElementById("editor");
+  const form = document.getElementById("postForm");
+  const button = document.querySelector("button");
+  const hiddenInput = document.getElementById("hiddenInput");
+
+  // store all typed characters
+  let letters = [];
+
+  // keep cursor at end after updates
+  function moveCursorToEnd() {
+    let range = document.createRange();
+    let sel = window.getSelection();
+    range.selectNodeContents(editor);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  // handle typing and backspace behavior
+  editor.addEventListener("keydown", function(e) {
+
+    // backspace crosses out letters
+    if (e.key === "Backspace") {
+      e.preventDefault();
+
+      for (let i = letters.length - 1; i >= 0; i--) {
+        if (!letters[i].crossed) {
+          letters[i].crossed = true;
+          break;
+        }
+      }
+
+      render();
+    }
+
+    // enter creates new line
+    else if (e.key === "Enter") {
+      e.preventDefault();
+
+      letters.push({
+        char: "<br>",
+        crossed: false
+      });
+
+      render();
+    }
+
+    // normal typing adds letters
+    else if (e.key.length === 1) {
+      e.preventDefault();
+
+      letters.push({
+        char: e.key,
+        crossed: false
+      });
+
+      render();
+    }
+  });
+
+  // update what user sees in editor
+  function render() {
+    let html = "";
+
+    for (let l of letters) {
+      if (l.crossed) {
+        html += "<s>" + l.char + "</s>";
+      } else {
+        if (l.char === "<br>") {
+          html += "<br>";
+        } else {
+          html += l.char;
+        }
+      }
+    }
+
+    editor.innerHTML = html;
+    moveCursorToEnd();
+  }
+
+  // delay and submit post
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    editor.contentEditable = false;
+    button.disabled = true;
+
+    let message = document.createElement("p");
+    message.innerText = "This will be posted exactly as written. You cannot change it.";
+    document.body.appendChild(message);
+
+    setTimeout(function() {
+      hiddenInput.value = editor.innerHTML;
+      form.submit();
+    }, 2000);
+  });
+</script>
+
+</body>
+</html>
