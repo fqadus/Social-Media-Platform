@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 3000;
 const path = require("path");
 
 app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 let posts = [];
@@ -36,7 +37,7 @@ app.get("/create", (req, res) => {
 
 // handle post
 app.post("/post", (req, res) => {
-  console.log("POST RECEIVED:", req.body); // DEBUG
+  console.log("POST RECEIVED:", req.body); 
 
   let newPost = {
   username: currentUser,
@@ -46,7 +47,7 @@ app.post("/post", (req, res) => {
 
   posts.push(newPost);
 
-  console.log("POSTS ARRAY:", posts); // DEBUG
+  console.log("POSTS ARRAY:", posts); 
 
   res.redirect("/");
 });
