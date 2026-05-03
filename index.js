@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const path = require('path');
-const db = new DatabaseSync('/data/database.db', {readonly: false});
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(_dirnamme, 'public')));
