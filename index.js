@@ -1,10 +1,10 @@
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
-const path = require('path');
+const path = require("path");
 
 app.set("view engine", "ejs");
-app.use(express.static(path.join(_dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 let posts = [];
 let currentUser = "";
